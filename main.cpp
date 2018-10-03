@@ -30,12 +30,13 @@ UKC_GPIO GPIO;
 int main(){
 
     GPIO.GPIO_init();
-
+    
     thread GPIO_th(&GPIO_F);
     thread OpenCV_th(&OPENCV_F);    
 
     GPIO_th.join();
     OpenCV_th.join();
+
 
     return 0;
 }
@@ -44,11 +45,14 @@ int main(){
 ////////////////////////////// ** Thread ** /////////////////////////////////////
 
 void GPIO_F(){
-    if(mode == 0){
-        GPIO.Motor_off();
-    }
-    else{
-        GPIO.Motor_on();
+    while(1){
+        if(flag_bird == 0){
+            GPIO.Motor_off();
+        }
+        else{
+            GPIO.Motor_on();
+        }
+        delay(30);
     }
 }
 
