@@ -2,6 +2,9 @@
 #include <iostream>
 #include <vector>
 #include <deque>
+#include <thread> 
+
+#include "UKC_GPIO.h"
 
 using namespace cv;
 using namespace std; 
@@ -12,22 +15,60 @@ int tail = 10;   //tail on object in debug
 int flag_bird = 0;  //exist bird
 Rect min_birdsize = Rect(0,0,20,20);    //0 ,0, min width pixel , min height pixel
 
+void bird();
 Rect ContoursNBoxing(Mat src);
 Mat MovingMat(Mat src, Mat pre_src);
 
-int main() {
+void GPIO_F();
+void OPENCV_F();
+
+UKC_GPIO GPIO;
+
+//////////////////////////////// ** main ** //////////////////////////////////////////////
+
+
+int main(){
+
+    GPIO.GPIO_init();
+
+    thread GPIO_th(&GPIO_F);
+    thread OpenCV_th(&OPENCV_F);    
+
+    GPIO_th.join();
+    OpenCV_th.join();
+
+    return 0;
+}
+
+
+////////////////////////////// ** Thread ** /////////////////////////////////////
+
+void GPIO_F(){
+    if(mode == 0){
+        GPIO.Motor_off();
+    }
+    else{
+        GPIO.Motor_on();
+    }
+}
+
+
+void OPENCV_F(){
+    mode = 1;
+    bird();
+}
+
+
+///////////////////////////////** OpenCV **//////////////////////////////////////////////
+
+void bird() {
 	//init
 	Mat frame;
 	Mat pre_frame;
 	Mat res;
-	Mat cam;
 	Rect TRect;
 	Point2f center;
 	Point cent = Point(0, 0);
-	deque<Point> cents;
-	for (int t = 0; t < tail; t++)
-		cents.push_back(Point(0, 0));
-	float radius;
 
 	//frame init
 	VideoCapture video(0);
@@ -38,8 +79,6 @@ int main() {
 		//get frame
 		frame.copyTo(pre_frame);
 		video >> frame;
-		if (mode)
-			frame.copyTo(cam);
 		cvtColor(frame, frame, COLOR_BGR2GRAY);
 
 		res = MovingMat(frame, pre_frame);   //detect moving
@@ -51,30 +90,14 @@ int main() {
 		else
 			flag_bird = 1;
 
-		//debug
-		if (mode) {
-			Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
-			cents.pop_front();
-			cents.push_back(cent);
-			rectangle(res, TRect, color, 2);
-			rectangle(cam, TRect, color, 2);
-			for (int i = 0; i < tail-1; i++) {
-				if (cents[i] == Point(0, 0) || cents[i + 1] == Point(0, 0))
-					continue;
-				line(cam, cents[i], cents[i + 1], color, 2);
-			}
-			//circle(res, center, (int)radius, color, 2, 8, 0);
-			//circle(cam, center, (int)radius, color, 2, 8, 0);
-			imshow("debug", res);
-			imshow("camera", cam);
-			cout << "center = " << cent << endl;
-		}
-		cout << "bird = " << flag_bird << endl;
-		if (waitKey(50) == 27) {
+        if(mode)
+		    cout << "bird = " << flag_bird << endl;
+		
+        if (waitKey(50) == 27) {
 			break;
 		}
 	}
-	return 0;
+	return;
 }
 
 Mat MovingMat(Mat src , Mat pre_src) {
