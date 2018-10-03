@@ -103,7 +103,7 @@ void bird() {
         if(mode)
 		    cout << "bird = " << flag_bird << endl;
 		
-        if (waitKey(50) == 27) {
+        if (waitKey(1) == 27) {
 			break;
 		}
 	}
