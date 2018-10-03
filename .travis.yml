@@ -1,33 +1,50 @@
-sudo: required
-before_install:
-  - sudo apt-get install libao-dev
-  - sudo apt-get install libcurl4-openssl-dev
-  - chmod +x installMPG123.sh
-  - ./installMPG123.sh
-  
-# Enable C++ support
-language: cpp
+language:
+  - cpp
 
-# Compiler selection
 compiler:
   - gcc
   
-install:
-  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
-  - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
-  
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      CMAKE_URL="http://www.cmake.org/files/v3.3/cmake-3.3.2-Linux-x86_64.tar.gz"
-      mkdir cmake && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
-      export PATH=${DEPS_DIR}/cmake/bin:${PATH}
-    fi
-  
-  # Go to the Root directory  
-  - cd ..
+before_install:
+  - sudo apt-get update
 
-# Build steps
-script:
+install:
+
+# OpenCV v3.0.0 (beta) install code (modified from orignal source: https://github.com/jayrambhia/Install-OpenCV)
+
+  # OpenCV dependencies - Details available at: http://docs.opencv.org/trunk/doc/tutorials/introduction/linux_install/linux_install.html
+  - sudo apt-get install -y build-essential
+  - sudo apt-get install -y cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
+  - sudo apt-get install -y python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
+
+  # Download v3.0.0 .zip file and extract.
+  - curl -sL https://github.com/Itseez/opencv/archive/3.0.0-beta.zip > opencv.zip
+  - unzip opencv.zip
+  - cd opencv-3.0.0-beta
+  
+  # Create a new 'build' folder.
   - mkdir build
   - cd build
-  - ${DEPS_DIR}/cmake/bin/cmake .. && make
+  
+  # Set build instructions for Ubuntu distro.
+  - cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_TBB=ON -D BUILD_NEW_PYTHON_SUPPORT=ON -D WITH_V4L=ON -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=ON -D BUILD_EXAMPLES=ON -D WITH_QT=ON -D WITH_OPENGL=ON ..
+  
+  # Run 'make' with four threads.
+  - make -j4
+  
+  # Install to OS.
+  - sudo make install
+  
+  # Add configuration to OpenCV to tell it where the library files are located on the file system (/usr/local/lib)
+  - sudo sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
+  
+  - sudo ldconfig
+  - echo "OpenCV installed."
+  
+  # We need to return to the repo "root" folder, so we can then 'cd' into the C++ project folder.
+  - cd ../../
+
+script:
+  - cd [project_dir]
+  - cmake .
+  - make
+  - ./[application_name] [params]
