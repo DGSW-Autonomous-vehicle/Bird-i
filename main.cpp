@@ -91,8 +91,10 @@ void bird() {
 
 		if (TRect.height < min_birdsize.height && TRect.width < min_birdsize.width)
 			flag_bird = 0;
-		else
+		else if(cent > 320)
 			flag_bird = 1;
+		else
+			flag_bird = 2;
 
         if(mode)
 		    cout << "bird = " << flag_bird << endl;
