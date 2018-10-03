@@ -47,10 +47,14 @@ int main(){
 void GPIO_F(){
     while(1){
         if(flag_bird == 0){
-            GPIO.Motor_off();
+            GPIO.Motor1_off();
+            GPIO.Motor2_off();
+        }
+        else if (flag_bird == 1){
+            GPIO.Motor1_on();
         }
         else{
-            GPIO.Motor_on();
+            GPIO.Motor2_on();
         }
         delay(30);
     }

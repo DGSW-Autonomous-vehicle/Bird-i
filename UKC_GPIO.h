@@ -3,7 +3,8 @@
 #include <softPwm.h>
 #include <stdlib.h>
 
-#define Motor_Pin 25
+#define Motor1_Pin 25
+#define Motor2_Pin 24
 
 using namespace std;
 
@@ -13,8 +14,10 @@ private:
 
 public:
     void GPIO_init();
-    void Motor_on();
-    void Motor_off();
+    void Motor1_on();
+    void Motor1_off();
+    void Motor2_on();
+    void Motor2_off();
 };
 
 void UKC_GPIO::GPIO_init(){
@@ -23,15 +26,25 @@ void UKC_GPIO::GPIO_init(){
         return;
     }
 
-    pinMode(Motor_Pin,OUTPUT);
+    pinMode(Motor1_Pin,OUTPUT);
+    pinMode(Motor2_Pin,OUTPUT);
 }
 
-void UKC_GPIO::Motor_on(){
-    digitalWrite(Motor_Pin,HIGH);
+void UKC_GPIO::Motor1_on(){
+    digitalWrite(Motor1_Pin,HIGH);
 }
 
-void UKC_GPIO::Motor_off(){
-    digitalWrite(Motor_Pin,LOW);
+void UKC_GPIO::Motor1_off(){
+    digitalWrite(Motor1_Pin,LOW);
+}
+
+
+void UKC_GPIO::Motor2_on(){
+    digitalWrite(Motor2_Pin,HIGH);
+}
+
+void UKC_GPIO::Motor2_off(){
+    digitalWrite(Motor2_Pin,LOW);
 }
 
 
