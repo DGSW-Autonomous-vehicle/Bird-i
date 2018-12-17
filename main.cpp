@@ -13,6 +13,9 @@ RNG rng(12345);
 char mode = 0;  //debug mode    0 = disable  1 = enable
 int tail = 10;   //tail on object in debug
 int flag_bird = 0;  //exist bird
+
+int flag_stat = 0;
+
 Rect min_birdsize = Rect(0,0,20,20);    //0 ,0, min width pixel , min height pixel
 
 void bird();
@@ -48,14 +51,17 @@ void GPIO_F(){
     while(1){
         if(flag_bird == 0){
             GPIO.Motor1_off();
-            GPIO.Motor2_off();
         }
         else if (flag_bird == 1){
             GPIO.Motor1_on();
         }
-        else{
-            GPIO.Motor2_on();
+
+        if(flag_bird == 1 && flag_stat != 2 ){
+          delay(500); 
         }
+
+        flag_stat = flag_bird;
+
         delay(30);
     }
 }
@@ -74,20 +80,21 @@ void bird() {
 	Mat frame;
 	Mat pre_frame;
 	Mat res;
+    Mat cam;
 	Rect TRect;
 	Point2f center;
 	Point cent = Point(0, 0);
 
 	//frame init
 	VideoCapture video(0);
-	video >> frame;
-	cvtColor(frame, frame, COLOR_BGR2GRAY);
+	video >> cam;
+	cvtColor(frame, cam, COLOR_BGR2GRAY);
 
 	while (true){
 		//get frame
 		frame.copyTo(pre_frame);
-		video >> frame;
-		cvtColor(frame, frame, COLOR_BGR2GRAY);
+		video >> cam;
+		cvtColor(frame, cam, COLOR_BGR2GRAY);
 
 		res = MovingMat(frame, pre_frame);   //detect moving
 		TRect = ContoursNBoxing(res);	//Contours & Boxing
@@ -95,14 +102,15 @@ void bird() {
 
 		if (TRect.height < min_birdsize.height && TRect.width < min_birdsize.width)
 			flag_bird = 0;
-		else if(cent.x > 320)
-			flag_bird = 1;
 		else
-			flag_bird = 2;
+			flag_bird = 1;
 
-        if(mode)
-		    cout << "bird = " << flag_bird << endl;
-		
+        if(mode){
+		    cout << "bird = " << cent << endl;
+            rectangle(cam,TRect,Scalar(0,0,255),2,0.5,Scalar(0,0,0));
+            imshow("bird",cam);
+        }
+
         if (waitKey(1) == 27) {
 			break;
 		}

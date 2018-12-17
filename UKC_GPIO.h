@@ -31,20 +31,20 @@ void UKC_GPIO::GPIO_init(){
 }
 
 void UKC_GPIO::Motor1_on(){
-    digitalWrite(Motor1_Pin,HIGH);
+    digitalWrite(Motor1_Pin,LOW);
 }
 
 void UKC_GPIO::Motor1_off(){
-    digitalWrite(Motor1_Pin,LOW);
+    digitalWrite(Motor1_Pin,HIGH);
 }
 
 
 void UKC_GPIO::Motor2_on(){
-    digitalWrite(Motor2_Pin,HIGH);
+    digitalWrite(Motor2_Pin,LOW);
 }
 
 void UKC_GPIO::Motor2_off(){
-    digitalWrite(Motor2_Pin,LOW);
+    digitalWrite(Motor2_Pin,HIGH);
 }
 
 
