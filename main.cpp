@@ -54,13 +54,8 @@ void GPIO_F(){
         }
         else if (flag_bird == 1){
             GPIO.Motor1_on();
+            delay(300); 
         }
-
-        if(flag_bird == 1 && flag_stat != 2 ){
-          delay(500); 
-        }
-
-        flag_stat = flag_bird;
 
         delay(30);
     }
@@ -80,7 +75,7 @@ void bird() {
 	Mat frame;
 	Mat pre_frame;
 	Mat res;
-    Mat cam;
+    	Mat cam;
 	Rect TRect;
 	Point2f center;
 	Point cent = Point(0, 0);
@@ -88,13 +83,13 @@ void bird() {
 	//frame init
 	VideoCapture video(0);
 	video >> cam;
-	cvtColor(frame, cam, COLOR_BGR2GRAY);
+	cvtColor(cam, frame, COLOR_BGR2GRAY);
 
 	while (true){
 		//get frame
 		frame.copyTo(pre_frame);
 		video >> cam;
-		cvtColor(frame, cam, COLOR_BGR2GRAY);
+		cvtColor(cam, frame, COLOR_BGR2GRAY);
 
 		res = MovingMat(frame, pre_frame);   //detect moving
 		TRect = ContoursNBoxing(res);	//Contours & Boxing
@@ -105,13 +100,16 @@ void bird() {
 		else
 			flag_bird = 1;
 
-        if(mode){
-		    cout << "bird = " << cent << endl;
-            rectangle(cam,TRect,Scalar(0,0,255),2,0.5,Scalar(0,0,0));
-            imshow("bird",cam);
-        }
+	        if(mode){
+			cout << "bird = " << cent << endl;
+            cout << flag_bird <<endl;
+            rectangle(res,TRect,Scalar(255,255,255));
+			rectangle(cam,TRect,Scalar(0,255,0),1);
+			imshow("bird",cam);
+            imshow("move",res);
+        	}
 
-        if (waitKey(1) == 27) {
+       		if (waitKey(1) == 27) {
 			break;
 		}
 	}
